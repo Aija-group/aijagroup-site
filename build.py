@@ -56,8 +56,8 @@ header{position:sticky;top:0;z-index:50;background:rgba(244,241,234,.88);backdro
 header .wrap{display:flex;align-items:center;justify-content:space-between;height:74px;gap:20px}
 .logo{display:flex;align-items:center;gap:12px;text-decoration:none!important}
 .logo .mark{width:38px;height:38px;display:block}.logo .mark svg{width:100%;height:100%;display:block}
-.logo .word{font-family:var(--display);font-weight:800;font-size:1.45rem;letter-spacing:-.02em;line-height:1;display:flex;align-items:baseline;gap:7px}
-.logo .word small{font-family:var(--font);font-weight:500;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.logo .word{font-family:var(--display);font-weight:800;font-size:1.5rem;letter-spacing:-.02em;line-height:.9;display:flex;flex-direction:column;align-items:flex-start}
+.logo .word small{font-family:var(--font);font-weight:600;font-size:.56rem;letter-spacing:.34em;text-transform:uppercase;color:var(--muted);margin-top:4px;padding-left:.1em}
 nav ul{list-style:none;margin:0;padding:0;display:flex;gap:6px;align-items:center}
 nav a{padding:10px 14px;font-weight:500;font-size:.98rem;border-radius:999px;text-decoration:none!important}nav a:hover{background:var(--paper2)}
 nav li.cta a{background:var(--ink);color:var(--paper);font-weight:600;margin-left:8px}nav li.cta a:hover{background:var(--ink2)}
@@ -66,7 +66,7 @@ nav li.cta a{background:var(--ink);color:var(--paper);font-weight:600;margin-lef
 @media(max-width:860px){.burger{display:flex}
 nav{position:absolute;top:100%;left:0;right:0;background:var(--paper);border-bottom:1px solid var(--line);display:none;padding:14px 18px 22px;box-shadow:0 20px 40px rgba(0,0,0,.08)}
 nav.open{display:block}nav ul{flex-direction:column;align-items:stretch;gap:2px}nav a{display:block;font-size:1.15rem;padding:14px 12px;border-radius:10px}
-nav li.cta a{margin:10px 0 0;text-align:center}.logo .word small{display:none}}
+nav li.cta a{margin:10px 0 0;text-align:center}}
 /* hero */
 .hero{position:relative;padding:clamp(80px,11vw,160px) 0 clamp(60px,8vw,110px);overflow:hidden}
 .hero h1{max-width:14ch;margin-bottom:.35em}.hero h1 .b{display:block;color:var(--accent)}

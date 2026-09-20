@@ -7,7 +7,7 @@ Värit
 
 Fontit
   ÄIJÄ  – Bricolage Grotesque ExtraBold (800), Google Fonts
-  GROUP – Inter Medium (500), välistys 0.12em
+  GROUP – Inter Medium (500), ÄIJÄ-sanan alla, harvennettu ÄIJÄ-sanan levyiseksi
 
 Tiedostot
   aija-merkki.svg / -512.png / -1024.png    merkki tummalla pohjalla (favicon, some-profiilikuva)
