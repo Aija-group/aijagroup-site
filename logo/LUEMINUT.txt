@@ -1,0 +1,18 @@
+Äijä Group – logotiedostot
+
+Värit
+  Muste    #14130f
+  Paperi   #f4f1ea
+  Oranssi  #ff4d1a
+
+Fontit
+  ÄIJÄ  – Bricolage Grotesque ExtraBold (800), Google Fonts
+  GROUP – Inter Medium (500), välistys 0.12em
+
+Tiedostot
+  aija-merkki.svg / -512.png / -1024.png    merkki tummalla pohjalla (favicon, some-profiilikuva)
+  aija-merkki-vaalea-1024.png               merkki vaalealla pohjalla
+  aija-logo-vaaka-*.png                     merkki + ÄIJÄ GROUP vaakaan (läpinäkyvä / paperi / tumma)
+  aija-logo-pysty-*.png                     pystyversio (läpinäkyvä / tumma)
+
+Suoja-alue: merkin korkeuden 1/4 joka puolella. Älä venytä, älä vaihda pisteiden väriä.

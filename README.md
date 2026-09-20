@@ -1,0 +1,51 @@
+# Äijä Group Oy – verkkosivut (yksisivuinen)
+
+Staattinen sivusto, generoidaan Pythonilla. Ei riippuvuuksia (Pillow valinnainen: favicon.ico, logo.png, og.png).
+
+```
+python3 build.py      # -> site/
+```
+
+Julkaisu: pudota `site/`-kansion sisältö (tai `aijagroup-netlify.zip`) Netlifyyn tai mihin tahansa staattiseen hostiin.
+
+## Rakenne (3 sivua)
+
+- `/` – kaikki yhdellä sivulla. Copy = Sulon oma teksti (`COPYT.md`, 20.9.2026), rakenne:
+  hero ("Älä osta lisää näkyvyyttä viestille, joka ei vielä myy.") → Miksi → Tunnistatko tämän? (8) → Positiointi (5 kysymystä) → Myyntiviesti (9 kysymystä + sitaatti) → Mitä teemme (5) → Mitä jää käteen (7) → Näin työskentelemme (5) → Yhteistyö (Viestiaudit / Positiointi & myyntiviesti / Verkkosivu / Kumppanuus, mailto-CTA:t) → Mediaeuro → Meistä (Sulo, minä-muoto, kuva) → Yhteys
+- `/tietosuoja/`, `/kiitos/` (lomakkeen kiitossivu, noindex), `404.html`
+- Yhteydenottolomake = Netlify Forms (`data-netlify`, honeypot). **Netlifyssä: Site → Forms → Form notifications → Email → sulo@aijagroup.fi** – muuten viestit jäävät vain Netlifyn paneeliin.
+
+## Brändi
+
+- Paperi `#f4f1ea`, muste `#14130f`, signaalioranssi `#ff4d1a`; Bricolage Grotesque + Inter (Google Fonts)
+- Logomerkki: musta pyöristetty neliö, kaksi oranssia pistettä (ä:n pisteet) + viiva. SVG `build.py`:n `MARK`-muuttujassa, PNG:t generoidaan.
+
+## Kuva
+
+Perustajan portretti `src/img/sulo-maki.jpg` (1200×1500, rajattu alkuperäisestä `sulo kuva (1).png`). Neliöversio some/Googleen: `logo/sulo-maki-nelio-1024.jpg`.
+
+## Copyn muokkaus
+
+Tekstit ovat `content.py`:ssä rakenteina; `COPYT.md` on Sulon alkuperäinen. Lihavointi `**näin**` toimii FOUNDER-kappaleissa.
+
+## Vahvista ennen julkaisua (content.py)
+
+- Domain `aijagroup.fi` ja sähköposti `sulo@aijagroup.fi` – OLETUKSIA
+- `SITE["ytunnus"]`, `SITE["linkedin"]` – tyhjät, ei näytetä ennen täyttöä
+- Perustajan tekstit (`FOUNDER`) – kirjoitettu Sulon oman kuvauksen pohjalta, tarkista sävy
+
+## Arkisto
+
+`_arkisto/` sisältää aiemmat versiot: v2 (palvelusivut), v3 (taitolista), v4 (D2C-ketju), v5 (positio ensin), v6 (viesti on).
+
+## Julkaisu (Netlify + Cloudflare DNS)
+
+1. app.netlify.com → Add new site → Deploy manually → pudota `aijagroup-netlify.zip` (tai `site/`-kansio).
+2. Site configuration → Forms → Enable; Form notifications → Email → sulo@aijagroup.fi.
+3. Domain management → Add domain → aijagroup.fi (+ www). Netlify näyttää tarvittavat tietueet.
+4. Cloudflare DNS (Proxy status **DNS only**, harmaa pilvi):
+   - `A`     `@`    `75.2.60.5`
+   - `CNAME` `www`  `<sitename>.netlify.app`
+5. Netlify → HTTPS → Verify DNS → Provision certificate (Let's Encrypt). Valmis.
+
+Päivitykset: `python3 build.py` → pudota uusi zip Netlifyn Deploys-välilehdelle.
