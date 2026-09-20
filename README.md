@@ -41,11 +41,13 @@ Tekstit ovat `content.py`:ssä rakenteina; `COPYT.md` on Sulon alkuperäinen. Li
 ## Julkaisu (Netlify + Cloudflare DNS)
 
 1. app.netlify.com → Add new site → Deploy manually → pudota `aijagroup-netlify.zip` (tai `site/`-kansio).
-2. Site configuration → Forms → Enable; Form notifications → Email → sulo@aijagroup.fi.
+2. Site configuration → Forms → Enable form detection; Form notifications → Email → sulo@aijagroup.fi. **Tee uusi deploy detectionin jälkeen** – Netlify rekisteröi lomakkeen vain build-hetkellä, muuten POST → 404.
 3. Domain management → Add domain → aijagroup.fi (+ www). Netlify näyttää tarvittavat tietueet.
 4. Cloudflare DNS (Proxy status **DNS only**, harmaa pilvi):
    - `A`     `@`    `75.2.60.5`
    - `CNAME` `www`  `<sitename>.netlify.app`
-5. Netlify → HTTPS → Verify DNS → Provision certificate (Let's Encrypt). Valmis.
+5. Netlify → HTTPS → Verify DNS → sertifikaatti tulee itsestään (Let's Encrypt).
+6. Project configuration → General → Powered by Netlify badge → Off.
+7. Uusi projekti on Private by default → Make public.
 
 Päivitykset: `python3 build.py` → pudota uusi zip Netlifyn Deploys-välilehdelle.
