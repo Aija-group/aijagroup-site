@@ -1,6 +1,6 @@
 # SOP – Asiakassivuston toteutus ja julkaisu
 
-**Äijä Group Oy · versio 1.3 · 22.9.2026**
+**Äijä Group Oy · versio 1.0 · 20.9.2026**
 Tämä on toistettava menettely staattisen asiakassivuston rakentamiseen, julkaisuun ja ylläpitoon. Sama putki, jolla aijagroup.fi julkaistiin. Arvioitu kokonaisaika julkaisuun (kun sisältö on valmis): **45–90 min**, josta odottelua noin puolet.
 
 ---
@@ -10,42 +10,10 @@ Tämä on toistettava menettely staattisen asiakassivuston rakentamiseen, julkai
 | Asia | Käytäntö |
 |---|---|
 | **Domain** | Aina **asiakkaan** nimissä ja asiakkaan rekisteröijällä. Emme koskaan rekisteröi asiakkaan domainia omalle tilillemme. |
-| **DNS** | **Nimipalvelimia ei vaihdeta, jos asiakkaan sähköposti on domainin takana** (webhotellin posti, webmail, Google, M365). Sähköposti ei saa koskaan olla riski sivuston takia. Cloudflare vain, jos domainilla ei ole sähköpostia tai asiakas erikseen haluaa pois vanhasta hostista. Ks. luku 0.1. |
+| **DNS** | Mieluiten Cloudflare (ilmainen, hyvä UI). Jos asiakas ei halua vaihtaa, käytetään asiakkaan nykyistä DNS-paneelia – riittää, että sinne saa lisättyä kaksi tietuetta. |
 | **Lähdekoodi** | GitHub-organisaatio **Aija-group**, repo `<asiakas>-site`. Luovutetaan asiakkaalle pyydettäessä (zip tai siirto heidän GitHubiinsa). |
 | **Hosting** | Netlify, tiimi **Äijä group oy**. Yksi projekti per asiakas. |
 | **Sopimukseen** | Lause: "Sivuston lähdekoodi ja sisältö ovat asiakkaan omaisuutta ja luovutetaan pyydettäessä. Hosting- ja versionhallintatilit ovat Äijä Groupin hallinnassa ylläpidon ajan." |
-
-### 0.0 Liiketoimintamalli: rakenna → myy → asenna (lisätty 22.9.2026)
-
-Sivustot rakennetaan **spekulatiivisesti valmiiksi ennen kauppaa**. Siksi julkaisu tapahtuu kahdessa vaiheessa, eikä Netlify ja webhotelli ole kilpailevia vaihtoehtoja vaan peräkkäisiä:
-
-| Vaihe | Missä sivu on | Kuka hallitsee |
-|---|---|---|
-| **A. Demo myyntiä varten** (ennen kauppaa) | Netlify, osoite `<asiakas>.aijagroup.fi` | Äijä Group – ei asiakaskontaktia, ei tunnuksia |
-| **B. Asennus** (kaupan jälkeen) | Asiakkaan oma webhotelli, `httpdocs` | Asiakas omistaa hostingin, me teemme asennuksen |
-
-**Demossa pakolliset:** `<meta name="robots" content="noindex,nofollow">` kaikilla sivuilla (demo ei saa kilpailla asiakkaan oikean sivun kanssa hakutuloksissa), lomake ohjattu **omaan** osoitteeseemme ei asiakkaan, footerissa "Sivustoehdotus – Äijä Group Oy". Kaikki kolme poistetaan/vaihdetaan vasta kaupan jälkeen B-vaiheessa.
-
-**Demo-alidomain:** Cloudflare → aijagroup.fi → `CNAME <asiakas> → <asiakas>.netlify.app` (DNS only) + Netlify → Add domain `<asiakas>.aijagroup.fi`. Minuutti per asiakas, näyttää myynnissä paremmalta kuin `netlify.app`.
-
-**Ennen rakennusta selvitä:** onko asiakkaalla webhotelli (→ B-vaihe mahdollinen) vai suljettu palvelu / pelkkä domain (Wix, Squarespace, Kotisivukone → sivu jää Netlifyyn pysyvästi, DNS-muutos kaupan jälkeen, ks. 0.1 tapaus B/C). Tarkistus: `whois <domain>` + sivun lähdekoodi. Tämä tieto ennen kauppaa, ei sen jälkeen.
-
-**Sulon oma yksisivuinen muistilista (ei-tekninen):** [`ASENNUS-MUISTILISTA.md`](ASENNUS-MUISTILISTA.md) – Osa A demo, Osa B asennus. Tämä SOP on tekninen tausta-asiakirja.
-
----
-
-### 0.1 Asennustavan valinta – päätöspuu (lisätty 22.9.2026)
-
-Valitse asennustapa **sähköpostin** perusteella, ei hostingin. Useimmilla asiakkaillamme posti on webhotellin (Plesk/cPanel/DirectAdmin) webmailissa.
-
-| Tilanne | Asennustapa | DNS-muutoksia | Riski postille |
-|---|---|---|---|
-| **A.** Asiakkaalla on webhotelli (Plesk, cPanel, DirectAdmin, Louhi, Zoner, Domainkeskus…) ja posti siellä | **Tapa 1: lataa sivu webhotellin `httpdocs`/`public_html`-kansioon** (luku 5A) | **0** | **Ei mitään** |
-| **B.** Asiakkaalla on webhotelli, mutta halutaan Netlify (lomakkeet, git-push) | **Tapa 2: Netlify + vaihda vain `A @` ja `CNAME www` asiakkaan DNS-paneelissa** (luku 5B) | 2 tietuetta | Pieni – MX-tarkistus pakollinen |
-| **C.** Domainilla ei ole sähköpostia tai rekisteröijällä ei ole DNS-paneelia (esim. NordicHost ilman webhotellia) | **Tapa 3: Cloudflare + Netlify** (luku 5B) | Nimipalvelimet | Ei postia → ei riskiä |
-| **D.** Posti on Googlessa/M365:ssä ja asiakas haluaa eroon vanhasta hostista | Tapa 3, mutta MX/SPF/DKIM kopioidaan ensin Cloudflareen | Nimipalvelimet | Keskisuuri – tehdään vain asiakkaan pyynnöstä |
-
-**Oletus uudelle asiakkaalle = Tapa 1.** Se on aina turvallisin: vain `httpdocs`-kansion sisältö vaihtuu, mikään DNS-, posti- tai webmail-asetus ei muutu. Rollback on vanhan kansion palautus.
 
 **Tilit ja avaimet (Sulon Mac):**
 - GitHub: käyttäjä `sulo-commits` (sulo@aijagroup.fi), organisaatio `Aija-group`. SSH-avain `~/.ssh/id_ed25519_aijagroup`, host-alias `github.com-aijagroup`.
@@ -59,8 +27,7 @@ Valitse asennustapa **sähköpostin** perusteella, ei hostingin. Useimmilla asia
 Kerää nämä ennen kuin mitään rakennetaan. Puuttuva tieto tässä vaiheessa on yleisin viivästyksen syy.
 
 - [ ] **Domain**: mikä domain, missä se on rekisteröity (NordicHost, Domainkeskus, Louhi, GoDaddy…) ja **kenellä on tunnukset**.
-- [ ] **Sähköposti**: käyttääkö asiakas domainia sähköpostiin (Google Workspace, M365, webhotellin webmail)? → **Ratkaisee asennustavan (luku 0.1).** Webhotellin posti → Tapa 1, ei DNS-muutoksia.
-- [ ] **Webhotelli**: onko (Plesk/cPanel/muu), kenellä paneelin tunnukset, mikä PHP-versio.
+- [ ] **Sähköposti**: käyttääkö asiakas domainia sähköpostiin (Google Workspace, M365, webhotellin posti)? → MX-tietueet **eivät saa katketa** nimipalvelinvaihdossa.
 - [ ] **Nykyinen sivusto**: onko, ja ohjataanko vanhat URL-osoitteet uusille (301-ohjaukset `_redirects`-tiedostoon).
 - [ ] **Lomake**: mihin sähköpostiin yhteydenotot ohjataan.
 - [ ] **Sisältö**: copy, kuvat, logo, värit (tai päätös, että teemme brändin).
@@ -113,7 +80,7 @@ Työjärjestys:
 
 ---
 
-## 4. Netlify (demo myyntiä varten, ja lopullinen koti tapauksissa B–C)
+## 4. Netlify
 
 1. app.netlify.com → **Add new project → Import an existing project → GitHub** → organisaatio **Aija-group** → valitse repo.
    *Jos repo ei näy:* "Configure the Netlify app on GitHub" → anna Netlifylle pääsy Aija-group-organisaatioon.
@@ -129,46 +96,9 @@ Työjärjestys:
 
 ---
 
-## 5A. Julkaisu – Tapa 1: asiakkaan oma webhotelli (oletus, kaupan jälkeen)
+## 5. DNS ja domain
 
-Tämä ohittaa luvut 4, 5B ja 6 kokonaan. Ei Netlifyä, ei DNS-muutoksia.
-
-> **Yksityiskohtainen työohje ja valmiit tiedostot: [`webhotelli-kit/README.md`](webhotelli-kit/README.md).**
-> Kitissä `hosting.py` (kytkin webhotelli/Netlify samaan koodipohjaan), `lahetys.php` (PHP-lomake Netlify Formsin tilalle) ja `htaccess.txt` (HTTPS, siistit URLit, 301-ohjaukset, välimuisti, otsakkeet). Alla tiivistelmä.
-
-**Ennen:**
-1. Pyydä asiakkaalta webhotellin hallintapaneelin tunnukset (Plesk: `https://<host>:8443`, cPanel: `:2083`) **tai** pyydä asiakasta luomaan meille oma käyttäjä. Älä pyydä sähköpostitunnuksia – niitä ei tarvita.
-2. Ota vanhasta sivusta varmuuskopio: paneelin **Varmuuskopiot → tiedostot** tai Tiedostot → `httpdocs` → valitse kaikki → Pakkaa → lataa zip koneelle → `_materiaali/vanha-sivu.zip`.
-3. Kirjaa README:hen: paneelin osoite, käyttäjä (ei salasanaa), PHP-versio, kansion nimi (`httpdocs` / `public_html` / `www`).
-
-**Generaattorin erot Netlify-versioon:**
-- `build.py` tuottaa `site/.htaccess`:n (HTTPS-ohjaus, `ErrorDocument 404 /404.html`, välimuisti- ja gzip-otsakkeet). `_redirects` ja `netlify.toml` eivät vaikuta Apachessa – 301-ohjaukset vanhoista URL-osoitteista `.htaccess`:iin `Redirect 301`-riveinä.
-- Lomake: `data-netlify` ei toimi. Vaihtoehdot: (a) `site/lahetys.php` – PHP `mail()` asiakkaan omaan osoitteeseen + honeypot + ohjaus `/kiitos/`; webhotellin oma postipalvelin lähettää sen, eikä SPF:ää tarvitse muuttaa. (b) Ei lomaketta, iso soittonappi + `mailto:` (ravintolat, pienet urakoitsijat). (c) Formspree/Web3Forms, jos PHP ei ole käytössä.
-- Ei OG-kuvan buildia palvelimella → `site/` buildataan aina paikallisesti ja ladataan valmiina.
-
-**Asennus (~15 min):**
-1. `python3 build.py` → tarkista paikallisesti.
-2. Pakkaa **`site/`-kansion sisältö** zipiksi (`index.html` zipin juuressa, ei `site/`-kansiota sisällä):
-   ```bash
-   cd site && zip -r ../<asiakas>-site.zip . -x '.DS_Store' && cd ..
-   ```
-3. Paneeli → Tiedostot → `httpdocs` → valitse kaikki vanhat → Poista (varmuuskopio on jo otettu). Jätä paneelin omat kansiot (`cgi-bin`, `.well-known`) rauhaan.
-4. Lataa zip → klikkaa → **Pura arkisto** → poista zip.
-5. **SSL:** Plesk → SSL/TLS-varmenteet → Asenna Let's Encrypt (domain + www). cPanel: AutoSSL. Sitten HTTP→HTTPS-ohjaus päälle paneelista (Plesk: Isännöinnin asetukset → SEO-turvallinen 301) **tai** `.htaccess`:sta – ei molempia.
-6. Tarkista `https://<domain>`, `https://www.<domain>`, alasivut, 404, mobiili.
-7. Lähetä testiposti asiakkaan osoitteeseen ja avaa webmail – pitää toimia täsmälleen kuten ennen, koska mitään ei muutettu.
-
-**Rollback:** pura `_materiaali/vanha-sivu.zip` takaisin `httpdocs`-kansioon.
-
-**Päivitykset jatkossa:** buildaa → zip → pura. Jos päivityksiä tulee usein: Plesk **Git** → Lisää repositorio (GitHub-repo, jossa valmis `site/`-tuloste on commitoitu; Plesk ei aja buildia) → julkaisukansio `httpdocs` → webhook GitHubiin → push julkaisee. Ei DNS-muutoksia.
-
-**Tunnetut rajat:** ei deploy-historiaa (rollback = zip), ei lomakearkistoa, PHP-lähettimen posti voi päätyä roskapostiin jos hostin IP on huonolla maineella → testaa.
-
----
-
-## 5B. DNS ja domain (Tavat 2 ja 3 – vain kun Netlify on lopullinen koti)
-
-### Tapa 3: DNS siirretään Cloudflareen (vain jos domainilla ei ole sähköpostia tai asiakas pyytää)
+### 5A. Jos DNS siirretään Cloudflareen (suositus)
 
 1. **Ennen nimipalvelinvaihtoa:** kirjaa asiakkaan nykyiset DNS-tietueet (etenkin **MX**, SPF-TXT, DKIM, mahdolliset alidomainit). Ota kuvakaappaus.
 2. Cloudflare → **Add a domain** → asiakkaan domain → Free. Cloudflare skannaa tietueet – **vertaa kohtaan 1** ja lisää puuttuvat käsin. Sähköposti ei saa katketa.
@@ -176,24 +106,9 @@ Tämä ohittaa luvut 4, 5B ja 6 kokonaan. Ei Netlifyä, ei DNS-muutoksia.
 4. Asiakkaan rekisteröijällä (tai asiakas itse): **Nimipalvelimet → omat nimipalvelimet** → syötä Cloudflaren kaksi → tallenna. Tyhjennä muut kentät.
 5. Odota, kunnes Cloudflare sanoo "Active" (yleensä 5 min – 2 h, max 24 h). Tarkistus: `dig NS <domain>`.
 
-### Tapa 2: DNS jää asiakkaan nykyiseen paneeliin, vain www vaihtuu Netlifyyn
+### 5B. Jos DNS jää asiakkaan nykyiseen paneeliin
 
-Nimipalvelimet eivät muutu. Posti, webmail, autoconfig ja kalenterit jatkavat, koska `MX`, `mail`, `webmail`, SPF/DKIM/DMARC jäävät ennalleen. Muutetaan vain kohdan 6 kaksi tietuetta.
-
-**Pakolliset tarkistukset ennen tietueiden vaihtoa:**
-1. Kuvakaappaus koko DNS-vyöhykkeestä (Plesk: Isännöinti ja DNS → DNS-asetukset) → `_materiaali/dns-ennen.png`.
-2. **Mihin MX osoittaa?**
-   - `MX → mail.<domain>` ja `mail A <hostin IP>` → OK.
-   - `MX → <domain>` (paljas apex) → **ÄLÄ vaihda `A @`:ta vielä.** Lisää ensin `mail A <hostin IP>`, muuta MX → `mail.<domain>`, odota TTL:n verran (1–4 h), testaa posti, vasta sitten jatka. Muuten posti lähtee Netlifyn IP:hen.
-3. **SPF-TXT:** jos siinä on `a` tai `+a`, se viittaa apex-A:han ja rikkoutuu → korvaa `ip4:<hostin IP>`. `mx` ja `include:` ovat turvallisia.
-4. `webmail`, `autoconfig`, `autodiscover`, `ftp`, `mail` omina A-tietueina → jätä rauhaan.
-5. Onko `AAAA @` → poista, Netlifyllä ei ole IPv6:ta tälle; muuten osa kävijöistä menee vanhaan palvelimeen.
-6. Onko `A www` → poista ennen `CNAME www` -lisäystä (ei voi olla molempia).
-7. Laske `@`- ja `www`-tietueiden TTL 300 s ja odota vanhan TTL:n verran ennen vaihtoa → nopea rollback.
-
-**Jälkeen:** `dig <domain> MX` ei saa muuttua, `dig <domain> A` → 75.2.60.5. Testiposti sisään ja ulos, webmail auki.
-
-Jos paneelia ei ole (kuten NordicHostilla ilman webhotellia), on pakko tehdä Tapa 3 – mutta silloin domainilla ei yleensä ole postiakaan.
+Riittää, että sinne lisätään kohdan 6 kaksi tietuetta. Jos paneelia ei ole (kuten NordicHostilla ilman webhotellia), on pakko tehdä 5A.
 
 ---
 
@@ -248,8 +163,7 @@ git add -A && git commit -m "Mitä muutettiin"
 git push                  # Netlify julkaisee ~1 min
 ```
 
-- **Tapa 1 (webhotelli):** buildaa → zip → Tiedostot → Pura. Tai Plesk Git -webhook, jos `site/` on commitoitu repoon.
-- Jokainen push = uusi julkaisu (Netlify). Virheellinen julkaisu perutaan Netlifyssä *Deploys → aiempi deploy → Publish deploy* (sekunneissa).
+- Jokainen push = uusi julkaisu. Virheellinen julkaisu perutaan Netlifyssä *Deploys → aiempi deploy → Publish deploy* (sekunneissa).
 - Lomakeviestit myös Netlify → Forms → `<lomake>`, vaikka sähköposti hukkuisi.
 - Ilmaistason rajat: 100 GB liikennettä/kk, 300 build-minuuttia/kk, 100 lomakelähetystä/kk per projekti. Ylitys → Netlify Pro tai lomake Web3Forms/Formspree.
 
@@ -269,10 +183,6 @@ git push                  # Netlify julkaisee ~1 min
 | "Powered by Netlify" -badge | Uusien free-projektien oletus | Project configuration → General → badge Off |
 | GitHub "Too many requests" rekisteröinnissä | IP-/selainrajoitus | Yksityinen ikkuna tai puhelimen verkko, odota 15 min |
 | Cloudflaren proxy (oranssi pilvi) päällä | Let's Encrypt -validointi epäonnistuu | Vaihda DNS only |
-| Posti lakkasi tulemasta A-tietueen vaihdon jälkeen | MX osoitti paljaaseen domainiin | Palauta `A @` heti; tee 5B kohta 2 oikeassa järjestyksessä |
-| Zipin purku loi `site/`-kansion httpdocsiin | Pakattiin kansio, ei sen sisältö | Siirrä tiedostot ylös tai pakkaa uudestaan `cd site && zip -r ../x.zip .` |
-| Alasivut 404 webhotellissa | `DirectoryIndex` puuttuu tai `.htaccess` ei purkautunut (piilotiedosto) | Tarkista, että `.htaccess` on httpdocsissa (Tiedostot → näytä piilotiedostot) |
-| PHP-lomakkeen posti roskapostiin | Hostin IP tai puuttuva From-osoite | From = asiakkaan oma domainosoite, Reply-To = lähettäjä; testaa |
 
 ---
 
@@ -280,8 +190,7 @@ git push                  # Netlify julkaisee ~1 min
 
 | Erä | Hinta |
 |---|---|
-| Hosting, Tapa 1 (asiakkaan oma webhotelli) | asiakas maksaa jo (~5–15 €/kk) |
-| Hosting, Tavat 2–3 (Netlify free) | 0 €/kk |
+| Hosting (Netlify free) | 0 €/kk |
 | DNS (Cloudflare free) | 0 €/kk |
 | Domain | asiakas maksaa rekisteröijälleen (~10–20 €/v) |
 | GitHub (org free) | 0 € |

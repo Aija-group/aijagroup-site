@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Äijä Group Oy – yksisivuinen sivusto. Aja: python3 build.py -> site/"""
 import os, re, shutil, json, html
-from content import (SITE, NAV, TITLE, HERO, WHY, RECOGNIZE, RECOGNIZE_CLOSING, POSITIONING, MESSAGE, SERVICES, DELIVERABLES_INTRO,
+from content import (SITE, TRACKING, CONSENT, NAV, TITLE, HERO, WHY, RECOGNIZE, RECOGNIZE_CLOSING, POSITIONING, MESSAGE, SERVICES, DELIVERABLES_INTRO,
                      DELIVERABLES, PROCESS, MODELS_TITLE, MODELS, MEDIA, FOUNDER, CONTACT, FOOTER_LINE, PRIVACY)
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -227,6 +227,19 @@ textarea{min-height:130px;resize:vertical}
 .consent a{color:var(--ink)}
 .hp{position:absolute;left:-9999px}
 .contact .alt-mail{margin-top:18px;color:rgba(255,255,255,.85);font-size:.95rem}.contact .alt-mail a{color:#fff;font-weight:600}
+/* consent */
+.consent-bar{position:fixed;left:0;right:0;bottom:0;z-index:90;background:var(--ink);color:var(--paper);border-top:3px solid var(--accent);padding:18px 0;box-shadow:0 -10px 40px rgba(20,19,15,.18)}
+.consent-bar .wrap{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px 30px;align-items:center}
+@media(max-width:760px){.consent-bar .wrap{grid-template-columns:1fr;gap:14px}}
+.consent-bar p{margin:0;color:#d5d1c7;font-size:.96rem;line-height:1.5;max-width:70ch}
+.consent-bar a{color:var(--paper);text-decoration:underline;text-underline-offset:3px}
+.consent-bar .btns{display:flex;gap:10px;flex-wrap:wrap}
+.consent-bar .btn{padding:12px 20px;font-size:.95rem}
+.consent-bar .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.consent-bar .btn-primary:hover{background:var(--accent-dark)}
+.consent-bar .btn-plain{background:transparent;color:var(--paper);border:1.5px solid #55524a}
+.consent-bar .btn-plain:hover{border-color:var(--paper)}
+footer .meta button.linklike{background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 /* footer */
 footer{background:var(--ink);color:#bdb9ad;padding:44px 0 30px}
 footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
@@ -246,6 +259,39 @@ if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es
 document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});}else{document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');});}
 })();"""
 
+
+CONSENT_JS = r"""
+(function(){
+var KEY='aija-consent',PIXEL='__PIXEL__',bar=document.getElementById('consent-bar');
+function get(){try{return localStorage.getItem(KEY);}catch(e){return null;}}
+function save(v){try{localStorage.setItem(KEY,v);}catch(e){}}
+function pixel(){
+ if(!PIXEL||window.fbq)return;
+ !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+ fbq('init',PIXEL);fbq('track','PageView');
+}
+function upd(v){if(!window.gtag)return;gtag('consent','update',{'ad_storage':v,'ad_user_data':v,'ad_personalization':v,'analytics_storage':v,'personalization_storage':v});gtag('set','ads_data_redaction',v!=='granted');}
+function grant(){upd('granted');pixel();}
+function show(){if(bar)bar.hidden=false;}
+function hide(){if(bar)bar.hidden=true;}
+var c=get();
+if(c==='all'){grant();}else if(c!=='necessary'){show();}
+if(bar){Array.prototype.forEach.call(bar.querySelectorAll('[data-consent]'),function(btn){btn.addEventListener('click',function(){var v=btn.getAttribute('data-consent');save(v);hide();if(v==='all'){grant();}else{upd('denied');}});});}
+Array.prototype.forEach.call(document.querySelectorAll('[data-consent-open]'),function(el){el.addEventListener('click',function(e){e.preventDefault();show();});});
+function ev(g,f){if(window.gtag){gtag('event',g);}if(window.fbq){fbq('track',f);}}
+Array.prototype.forEach.call(document.querySelectorAll('a[href^="mailto:"]'),function(a){a.addEventListener('click',function(){ev('contact_click','Contact');});});
+var form=document.querySelector('form.contact-form');
+if(form){form.addEventListener('submit',function(){ev('form_submit','InitiateCheckout');});}
+if(location.pathname.indexOf('/kiitos')===0){ev('generate_lead','Lead');}
+})();
+"""
+
+def js_bundle():
+    js = JS
+    if tracking_on():
+        js += CONSENT_JS.replace("__PIXEL__", TRACKING.get("meta_pixel", "").strip())
+    return js
+
 def org_ld():
     d = {"@context": "https://schema.org", "@type": "ProfessionalService", "@id": SITE["domain"] + "/#org", "name": SITE["name"],
          "alternateName": SITE["short"], "url": SITE["domain"] + "/", "logo": SITE["domain"] + "/img/logo.png", "image": SITE["domain"] + "/img/og.png",
@@ -255,6 +301,36 @@ def org_ld():
     if SITE.get("linkedin"): d["sameAs"] = [SITE["linkedin"]]
     if SITE.get("ytunnus"): d["vatID"] = "FI" + SITE["ytunnus"].replace("-", "")
     return d
+
+def tracking_on():
+    return any(TRACKING.get(k, "").strip() for k in ("ga4", "meta_pixel", "google_ads"))
+
+def consent_head():
+    """Google Consent Mode v2 -oletukset ja gtag. Meta Pixel ladataan vasta suostumuksella (main.js)."""
+    ga, ads = TRACKING.get("ga4", "").strip(), TRACKING.get("google_ads", "").strip()
+    if not tracking_on():
+        return ""
+    s = """<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+var __c=null;try{__c=localStorage.getItem('aija-consent');}catch(e){}
+var __g=(__c==='all')?'granted':'denied';
+gtag('consent','default',{'ad_storage':__g,'ad_user_data':__g,'ad_personalization':__g,'analytics_storage':__g,'functionality_storage':'granted','personalization_storage':__g,'security_storage':'granted','wait_for_update':500});
+gtag('set','ads_data_redaction',__g!=='granted');
+gtag('set','url_passthrough',true);
+</script>"""
+    tags = [t for t in (ga, ads) if t]
+    if tags:
+        s += '\n<script async src="https://www.googletagmanager.com/gtag/js?id=' + tags[0] + '"></script>'
+        s += "\n<script>gtag('js',new Date());" + "".join("gtag('config','%s');" % t for t in tags) + "</script>"
+    return s
+
+def consent_bar():
+    if not tracking_on():
+        return ""
+    return f"""<div class="consent-bar" id="consent-bar" role="region" aria-label="Evästeasetukset" hidden>
+<div class="wrap"><p>{esc(CONSENT['text'])} <a href="/tietosuoja/">{esc(CONSENT['link'])}</a>.</p>
+<div class="btns"><button class="btn btn-plain" data-consent="necessary">{esc(CONSENT['reject'])}</button><button class="btn btn-primary" data-consent="all">{esc(CONSENT['accept'])}</button></div>
+</div></div>"""
 
 def head(title, desc, path, noindex=False):
     url = SITE["domain"] + path
@@ -275,6 +351,7 @@ def head(title, desc, path, noindex=False):
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css">
 <script type="application/ld+json">{json.dumps(org_ld(), ensure_ascii=False)}</script>
+{consent_head()}
 </head>
 <body>
 <header><div class="wrap">{logo()}<button class="burger" aria-label="Valikko" aria-expanded="false">{ic('menu')}</button>
@@ -283,10 +360,12 @@ def head(title, desc, path, noindex=False):
 """
 
 def footer():
+    cookie_link = '<button class="linklike" data-consent-open type="button">' + esc(CONSENT["settings"]) + "</button>" if tracking_on() else ""
     yt = f"<span>Y-tunnus {SITE['ytunnus']}</span>" if SITE.get("ytunnus") else ""
     li = f'<a href="{SITE["linkedin"]}" target="_blank" rel="noopener">LinkedIn</a>' if SITE.get("linkedin") else ""
     return f"""</main>
-<footer><div class="wrap"><div>{logo()}<div class="tag">{esc(FOOTER_LINE)}</div></div><div class="meta"><span>© 2026 {esc(SITE['name'])}</span>{yt}<a href="mailto:{SITE['email']}">{SITE['email']}</a>{li}<a href="/tietosuoja/">Tietosuoja</a></div></div></footer>
+<footer><div class="wrap"><div>{logo()}<div class="tag">{esc(FOOTER_LINE)}</div></div><div class="meta"><span>© 2026 {esc(SITE['name'])}</span>{yt}<a href="mailto:{SITE['email']}">{SITE['email']}</a>{li}<a href="/tietosuoja/">Tietosuoja</a>{cookie_link}</div></div></footer>
+{consent_bar()}
 <script src="/js/main.js" defer></script>
 </body></html>"""
 
@@ -411,7 +490,9 @@ def page_home():
 """ + footer()
 
 def page_privacy():
-    body = "".join(f"<h2>{esc(t)}</h2><p>{esc(x)}</p>" for t, x in PRIVACY)
+    # Evästeosiot näytetään vain, jos seuranta on oikeasti käytössä
+    skip = () if tracking_on() else ("Evästeet ja analytiikka", "Tietojen siirto EU:n ulkopuolelle")
+    body = "".join(f"<h2>{esc(t)}</h2><p>{esc(x)}</p>" for t, x in PRIVACY if t not in skip)
     return head("Tietosuoja | Äijä Group Oy", "Äijä Group Oy:n tietosuojaseloste.", "/tietosuoja/") + f'<section class="page"><div class="wrap" style="max-width:760px"><h1>Tietosuoja</h1><div class="prose">{body}<p style="font-size:.9rem;color:var(--faint)">Päivitetty 20.9.2026.</p></div></div></section>' + footer()
 
 def page_404():
@@ -452,7 +533,7 @@ def build():
     if os.path.exists(OUT): shutil.rmtree(OUT)
     os.makedirs(os.path.join(OUT, "css")); os.makedirs(os.path.join(OUT, "js")); os.makedirs(os.path.join(OUT, "img"))
     if os.path.isdir(os.path.join(SRC, "img")): shutil.copytree(os.path.join(SRC, "img"), os.path.join(OUT, "img"), dirs_exist_ok=True)  # fontit (src/fonts) vain OG-kuvaan, ei julkaista
-    open(os.path.join(OUT, "css", "style.css"), "w").write(CSS); open(os.path.join(OUT, "js", "main.js"), "w").write(JS)
+    open(os.path.join(OUT, "css", "style.css"), "w").write(CSS); open(os.path.join(OUT, "js", "main.js"), "w").write(js_bundle())
     open(os.path.join(OUT, "favicon.svg"), "w").write(FAVICON); make_images()
     write("/", page_home()); write("/tietosuoja/", page_privacy()); write("/kiitos/", page_thanks()); write("/404.html", page_404())
     open(os.path.join(OUT, "sitemap.xml"), "w").write(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>{SITE["domain"]}/</loc><priority>1.0</priority></url>\n  <url><loc>{SITE["domain"]}/tietosuoja/</loc><priority>0.3</priority></url>\n</urlset>\n')

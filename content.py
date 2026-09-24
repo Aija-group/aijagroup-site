@@ -13,6 +13,25 @@ SITE = {
     "description": "Äijä Group auttaa kasvuhaluisia yrityksiä rakentamaan position, myyntiviestin ja offerin, jotka tekevät niiden arvosta helpommin ymmärrettävän. Toteutamme myös verkkosivut, verkkokaupat ja käytännön markkinointia.",
 }
 
+# ---------------------------------------------------------------------------
+# Seuranta. Tyhjä arvo = kyseistä työkalua ei ladata lainkaan.
+# GA4 latautuu Google Consent Mode v2:n kanssa (ennen suostumusta evästeetön ping).
+# Meta Pixel latautuu vasta, kun kävijä hyväksyy – Metalla ei ole consent mode -tukea.
+# ---------------------------------------------------------------------------
+TRACKING = {
+    "ga4": "",          # G-XXXXXXXXXX
+    "meta_pixel": "",   # 15–16-numeroinen pikselin tunnus
+    "google_ads": "",   # AW-XXXXXXXXX (valinnainen, käyttää samaa suostumusta)
+}
+
+CONSENT = {
+    "text": "Käytämme evästeitä sivuston käytön mittaamiseen ja markkinoinnin kohdentamiseen. Välttämättömät evästeet ovat aina käytössä.",
+    "accept": "Hyväksy kaikki",
+    "reject": "Vain välttämättömät",
+    "link": "Lue tietosuojaselosteesta",
+    "settings": "Evästeasetukset",
+}
+
 NAV = [("Miksi", "#miksi"), ("Mitä teemme", "#mita"), ("Miten työskentelemme", "#miten"), ("Yhteistyö", "#yhteistyo"), ("Meistä", "#meista")]
 
 TITLE = "Äijä Group – Positiointi, myyntiviestit ja verkkosivut"
@@ -217,7 +236,9 @@ FOOTER_LINE = "Positiointi · Myyntiviestit · Verkkosivut · Verkkokaupat · St
 
 PRIVACY = [
     ("Rekisterinpitäjä", "Äijä Group Oy. Yhteydenotot tietosuoja-asioissa: " + SITE["email"] + "."),
-    ("Mitä tietoja käsittelemme", "Yhteydenottolomakkeella kerätään nimi, sähköposti, yritys, verkkosivun osoite ja viestin sisältö. Lomakkeen tekninen käsittelijä on Netlify (Netlify Forms), josta viesti välitetään sähköpostiimme. Sivusto ei käytä seurantaevästeitä. Tietoja käytetään yhteydenottoon vastaamiseen ja mahdollisen yhteistyön valmisteluun."),
+    ("Mitä tietoja käsittelemme", "Yhteydenottolomakkeella kerätään nimi, sähköposti, yritys, verkkosivun osoite ja viestin sisältö. Lomakkeen tekninen käsittelijä on Netlify (Netlify Forms), josta viesti välitetään sähköpostiimme. Tietoja käytetään yhteydenottoon vastaamiseen ja mahdollisen yhteistyön valmisteluun."),
+    ("Evästeet ja analytiikka", "Sivusto käyttää välttämättömiä evästeitä sekä suostumuksellasi Google Analytics 4:ää sivuston käytön mittaamiseen ja Metan mainospikseliä markkinoinnin kohdentamiseen ja mittaamiseen. Ennen suostumusta mainos- ja analytiikkaevästeitä ei aseteta, eikä Metan pikseliä ladata lainkaan. Voit muuttaa valintaasi milloin tahansa sivun alareunan Evästeasetukset-linkistä. Valintasi tallennetaan selaimesi paikalliseen muistiin, ei palvelimellemme."),
+    ("Tietojen siirto EU:n ulkopuolelle", "Google ja Meta voivat käsitellä analytiikka- ja mainosdataa myös EU:n ulkopuolella. Siirrot perustuvat EU:n ja Yhdysvaltain väliseen tietosuojakehykseen (Data Privacy Framework) ja vakiosopimuslausekkeisiin."),
     ("Säilytysaika", "Yhteydenottoja säilytetään enintään 24 kuukautta viimeisestä yhteydenotosta, ellei niistä synny asiakassuhdetta. Asiakassuhteen tietoja säilytetään kirjanpitolain edellyttämän ajan."),
     ("Oikeutesi", "Sinulla on oikeus tarkastaa, oikaista ja pyytää poistamaan tietosi sekä vastustaa käsittelyä. Pyynnöt sähköpostilla rekisterinpitäjälle."),
 ]

@@ -51,3 +51,27 @@ Tekstit ovat `content.py`:ssä rakenteina; `COPYT.md` on Sulon alkuperäinen. Li
 7. Uusi projekti on Private by default → Make public.
 
 Päivitykset: `python3 build.py` → pudota uusi zip Netlifyn Deploys-välilehdelle.
+
+## GA4 ja Meta Pixel
+
+Tunnukset `content.py` → `TRACKING`. **Tyhjä arvo = työkalua ei ladata lainkaan**, jolloin sivu pysyy evästeettömänä eikä bannerivaadetta ole.
+
+```python
+TRACKING = {
+    "ga4": "G-XXXXXXXXXX",
+    "meta_pixel": "1234567890123456",
+    "google_ads": "",   # valinnainen
+}
+```
+
+Kun vähintään yksi tunnus on täytetty, build lisää automaattisesti:
+- **Google Consent Mode v2** -oletukset (kaikki mainos- ja analytiikkasuostumukset `denied`) ennen gtag-latausta
+- **GA4** latautuu heti, mutta ilman suostumusta evästeettömänä pinginä (advanced consent mode → mallinnus toimii)
+- **Meta Pixel latautuu vasta hyväksynnän jälkeen** – Metalla ei ole consent mode -tukea, joten sitä ei saa ladata etukäteen
+- Evästebanneri (Hyväksy kaikki / Vain välttämättömät), valinta `localStorage`-avaimessa `aija-consent`
+- Footerin **Evästeasetukset**-painike, josta valinnan voi muuttaa
+- Tietosuojaselosteen evästeosiot
+
+**Tapahtumat:** mailto-klikki → GA4 `contact_click` + Meta `Contact`; lomakkeen lähetys → `form_submit` + `InitiateCheckout`; `/kiitos/` → `generate_lead` + `Lead`.
+
+**Testaus julkaisun jälkeen:** GA4 → Raportit → Reaaliaikainen; Meta → Events Manager → Test Events. Chromen kehittäjätyökaluista Application → Local Storage näyttää suostumuksen tilan.
